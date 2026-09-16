@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Finance Assistant - PocketSense AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', path='/css/style.css') }}">
+
+</head>
+
+<body>
+
+    <h1>AI Finance Assistant</h1>
+
+    <p>
+        Ask questions about your personal finance.
+    </p>
+
+
+    <form method="post" action="/chatbot">
+
+        <label>Your Question</label>
+
+        <input
+            type="text"
+            name="question"
+            placeholder="Example: How can I save money?"
+            required
+        >
+
+        <button type="submit">
+            Ask AI
+        </button>
+
+    </form>
+
+
+    {% if answer %}
+
+        <h2>AI Assistant</h2>
+
+        <p>
+            {{ answer }}
+        </p>
+
+    {% endif %}
+
+
+    <br>
+
+    <a href="/dashboard">
+        <button>Back to Dashboard</button>
+    </a>
+
+
+</body>
+
+</html>

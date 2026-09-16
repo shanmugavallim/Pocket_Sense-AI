@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Budget - PocketSense AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+
+<body>
+
+    <h1>Monthly Budget</h1>
+
+    <form method="post" action="/budget">
+
+        <label>Month</label>
+        <input
+            type="text"
+            name="month"
+            placeholder="Example: September 2026"
+            required
+        >
+
+        <label>Budget Amount</label>
+        <input
+            type="number"
+            name="amount"
+            placeholder="Example: 5000"
+            step="0.01"
+            required
+        >
+
+        <button type="submit">Save Budget</button>
+
+    </form>
+    <h2>Current Budget</h2>
+
+{% if budget %}
+    <p>Month: {{ budget.month }}</p>
+    <p>Budget Amount: ₹{{ budget.amount }}</p>
+
+    <p>Total Spent: ₹{{ total_spent }}</p>
+
+    <p>Remaining: ₹{{ budget.amount - total_spent }}</p>
+
+{% else %}
+    <p>No budget set yet.</p>
+{% endif %}
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Split Expense - PocketSense AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+
+<body>
+
+    <h1>Shared Expense Splitting</h1>
+
+    <p>
+        Split an expense equally among friends.
+    </p>
+
+    <form method="post" action="/split-expense">
+
+        <label>Expense Name</label>
+
+        <input
+            type="text"
+            name="expense_name"
+            placeholder="Example: Dinner"
+            required
+        >
+
+
+        <label>Total Amount</label>
+
+        <input
+            type="number"
+            name="amount"
+            placeholder="Example: 900"
+            step="0.01"
+            required
+        >
+
+
+        <label>Number of People</label>
+
+        <input
+            type="number"
+            name="people"
+            placeholder="Example: 3"
+            min="1"
+            required
+        >
+
+
+        <button type="submit">
+            Split Expense
+        </button>
+
+    </form>
+
+
+    {% if result %}
+
+        <h2>Split Result</h2>
+
+        <p>
+            Expense:
+            {{ result.expense_name }}
+        </p>
+
+        <p>
+            Total Amount:
+            ₹{{ result.amount }}
+        </p>
+
+        <p>
+            Number of People:
+            {{ result.people }}
+        </p>
+
+        <p>
+            Each Person Pays:
+            ₹{{ result.each_person }}
+        </p>
+
+    {% endif %}
+
+
+    <br>
+
+    <a href="/dashboard">
+        <button>Back to Dashboard</button>
+    </a>
+
+</body>
+
+</html>

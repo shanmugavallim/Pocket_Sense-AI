@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - PocketSense AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', path='/css/style.css') }}">
+
+</head>
+
+<body>
+
+    <h1>Welcome to PocketSense AI</h1>
+
+    <h2>Dashboard</h2>
+
+    <p>
+        Manage your expenses, budget and savings from here.
+    </p>
+
+
+    <!-- Financial Summary -->
+
+    <h2>Financial Summary</h2>
+
+    <p>
+        Total Spent:
+        ₹{{ total_spent }}
+    </p>
+
+
+    <!-- Budget -->
+
+    {% if budget %}
+
+        <p>
+            Monthly Budget:
+            ₹{{ budget.amount }}
+        </p>
+
+        <p>
+            Budget Remaining:
+            ₹{{ budget.amount - total_spent }}
+        </p>
+
+    {% else %}
+
+        <p>
+            No budget set yet.
+        </p>
+
+    {% endif %}
+
+
+    <!-- Savings -->
+
+    {% if savings %}
+
+        <p>
+            Savings Goal:
+            {{ savings.goal }}
+        </p>
+
+        <p>
+            Savings Target:
+            ₹{{ savings.target_amount }}
+        </p>
+
+        <p>
+            Amount Saved:
+            ₹{{ savings.saved_amount }}
+        </p>
+
+        <p>
+            Savings Remaining:
+            ₹{{ savings.target_amount - savings.saved_amount }}
+        </p>
+
+    {% else %}
+
+        <p>
+            No savings goal set yet.
+        </p>
+
+    {% endif %}
+
+
+    <!-- Expense Summary -->
+
+    <h2>Expense Summary</h2>
+
+    {% if category_totals %}
+
+        {% for category, total in category_totals.items() %}
+
+            <p>
+                {{ category }}:
+                ₹{{ total }}
+            </p>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>
+            No expenses available.
+        </p>
+
+    {% endif %}
+
+
+    <!-- Spending Chart -->
+
+    <h2>Spending Chart</h2>
+    <style>
+    #expenseChart {
+        width: 300px !important;
+        height: 300px !important;
+        margin: 20px auto;
+    }
+</style>
+
+    <canvas id="expenseChart"></canvas>
+
+
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <script>
+
+       const categories = JSON.parse('{{ categories_json | safe }}');
+
+       const amounts = JSON.parse('{{ amounts_json | safe }}');
+
+
+        new Chart(
+            document.getElementById("expenseChart"),
+            {
+                type: "pie",
+
+                data: {
+                    labels: categories,
+
+                    datasets: [
+                        {
+                            data: amounts
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true
+                }
+            }
+        );
+
+    </script>
+
+
+    <br>
+
+
+    <!-- Navigation Buttons -->
+
+    <a href="/add-expense">
+        <button>Add Expense</button>
+    </a>
+
+    <a href="/expenses">
+        <button>View Expenses</button>
+    </a>
+
+    <a href="/budget">
+        <button>Budget</button>
+    </a>
+
+    <a href="/savings">
+        <button>Savings</button>
+    </a>
+
+    <a href="/analysis">
+        <button>Spending Analysis</button>
+    </a>
+    <a href="/chatbot">
+    <button>AI Finance Assistant</button>
+</a>
+
+
+</body>
+
+</html>
