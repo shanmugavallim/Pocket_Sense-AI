@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Expenses - PocketSense AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+
+<body>
+
+    <h1>My Expenses</h1>
+
+    <table border="1" cellpadding="10" cellspacing="0">
+
+        <tr>
+            <th>Expense</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Date</th>
+        </tr>
+
+        {% for expense in expenses %}
+
+        <tr>
+            <td>{{ expense.title }}</td>
+            <td>₹{{ expense.amount }}</td>
+            <td>{{ expense.category }}</td>
+            <td>{{ expense.date }}</td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="/add-expense">
+        <button>Add New Expense</button>
+    </a>
+
+</body>
+
+</html>

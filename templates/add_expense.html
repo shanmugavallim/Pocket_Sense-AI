@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Expense - PocketSense AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+
+<body>
+
+    <h1>Add Expense</h1>
+
+    <form method="post" action="/add-expense">
+
+        <label>Expense Title</label>
+        <input
+            type="text"
+            name="title"
+            placeholder="Example: Dosa"
+            required
+        >
+
+        <label>Amount</label>
+        <input
+            type="number"
+            name="amount"
+            placeholder="Example: 150"
+            step="0.01"
+            required
+        >
+
+        <label>Category</label>
+
+        <select name="category" required>
+
+            <option value="">Select Category</option>
+
+            <option value="Food">Food</option>
+
+            <option value="Transport">Transport</option>
+
+            <option value="Education">Education</option>
+
+            <option value="Medicine">Medicine</option>
+
+            <option value="Shopping">Shopping</option>
+
+            <option value="Entertainment">Entertainment</option>
+
+            <option value="Other">Other</option>
+
+        </select>
+
+        <label>Date</label>
+
+        <input
+            type="date"
+            name="date"
+            required
+        >
+
+        <button type="submit">
+            Save Expense
+        </button>
+
+    </form>
+
+</body>
+
+</html>
