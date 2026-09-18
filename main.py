@@ -14,8 +14,19 @@ from ai.expense_prediction import predict_next_month_expense
 from ai.spending_classification import classify_spending
 import json
 from ai.chatbot import get_chatbot_response
+from starlette.middleware.sessions import SessionMiddleware
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from database.database import engine, Base, SessionLocal
 
 app = FastAPI()
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="pocketsense-secret-key"
+)
 
 Base.metadata.create_all(bind=engine)
 
@@ -44,6 +55,7 @@ def register_user(
     password: str = Form(...)
 ):
     db = SessionLocal()
+    print("REGISTER EMAIL:", email)
 
     new_user = User(
         name=name,
@@ -72,6 +84,7 @@ def login(request: Request):
 )
 @app.post("/login")
 def login_user(
+    request: Request,
     email: str = Form(...),
     password: str = Form(...)
 ):
@@ -87,22 +100,31 @@ def login_user(
         db.close()
         return {"message": "Invalid email or password"}
 
+    request.session["user_id"] = user.id
+
     db.close()
-    
+
     return RedirectResponse(
         url="/dashboard",
         status_code=303
-)
+    )
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request):
     db = SessionLocal()
 
-    total_expense = db.query(Expense).with_entities(Expense.amount).all()
+    user_id = request.session.get("user_id")
+
+    total_expense = db.query(Expense).filter(
+        Expense.user_id == user_id
+    ).with_entities(Expense.amount).all()
+
     total_spent = sum(expense[0] for expense in total_expense)
 
     category_totals = {}
 
-    expenses = db.query(Expense).all()
+    expenses = db.query(Expense).filter(
+        Expense.user_id == user_id
+    ).all()
 
     for expense in expenses:
 
@@ -115,9 +137,11 @@ def dashboard(request: Request):
     categories_json = json.dumps(list(category_totals.keys()))
     amounts_json = json.dumps(list(category_totals.values()))
 
-    budget = db.query(Budget).order_by(Budget.id.desc()).first()
+    budget = db.query(Budget).filter(
+    Budget.user_id == user_id).order_by(Budget.id.desc()).first()
 
-    savings = db.query(Savings).order_by(Savings.id.desc()).first()
+    savings = db.query(Savings).filter(
+    Savings.user_id == user_id).order_by(Savings.id.desc()).first()
 
     db.close()
 
@@ -143,6 +167,7 @@ def add_expense_page(request: Request):
     )
 @app.post("/add-expense")
 def add_expense(
+    request: Request,
     title: str = Form(...),
     amount: float = Form(...),
     category: str = Form(...),
@@ -150,31 +175,34 @@ def add_expense(
 ):
     db = SessionLocal()
 
+    user_id = request.session.get("user_id")
+
     new_expense = Expense(
         title=title,
         amount=amount,
         category=category,
-        date=date
+        date=date,
+        user_id=user_id
     )
 
     db.add(new_expense)
     db.commit()
-    db.refresh(new_expense)
 
     db.close()
 
-    return {
-        "message": "Expense added successfully",
-        "title": new_expense.title,
-        "amount": new_expense.amount,
-        "category": new_expense.category,
-        "date": new_expense.date
-    }
+    return RedirectResponse(
+    url="/add-expense",
+    status_code=303
+)
 @app.get("/expenses", response_class=HTMLResponse)
 def view_expenses(request: Request):
     db = SessionLocal()
 
-    expenses = db.query(Expense).all()
+    user_id = request.session.get("user_id")
+
+    expenses = db.query(Expense).filter(
+        Expense.user_id == user_id
+    ).all()
 
     db.close()
 
@@ -190,34 +218,44 @@ def view_expenses(request: Request):
 def budget_page(request: Request):
     db = SessionLocal()
 
-    budget = db.query(Budget).order_by(Budget.id.desc()).first()
-    
-    total_expense = db.query(Expense).with_entities(Expense.amount).all()
+    user_id = request.session.get("user_id")
+
+    budget = db.query(Budget).filter(
+        Budget.user_id == user_id
+    ).order_by(Budget.id.desc()).first()
+
+    total_expense = db.query(Expense).filter(
+        Expense.user_id == user_id
+    ).with_entities(Expense.amount).all()
+
     total_spent = sum(expense[0] for expense in total_expense)
-    
+
     db.close()
 
     return templates.TemplateResponse(
         request=request,
         name="budget.html",
         context={
-    "request": request,
-    "budget": budget,
-    "total_spent": total_spent
-}
+            "request": request,
+            "budget": budget,
+            "total_spent": total_spent
+        }
     )
-
 
 @app.post("/budget")
 def save_budget(
+    request: Request,
     month: str = Form(...),
     amount: float = Form(...)
 ):
     db = SessionLocal()
 
+    user_id = request.session.get("user_id")
+
     new_budget = Budget(
         month=month,
-        amount=amount
+        amount=amount,
+        user_id=user_id
     )
 
     db.add(new_budget)
@@ -226,16 +264,19 @@ def save_budget(
 
     db.close()
 
-    return {
-        "message": "Budget saved successfully",
-        "month": new_budget.month,
-        "amount": new_budget.amount
-    }
+    return RedirectResponse(
+    url="/budget",
+    status_code=303
+)
 @app.get("/savings", response_class=HTMLResponse)
 def savings_page(request: Request):
     db = SessionLocal()
 
-    savings = db.query(Savings).order_by(Savings.id.desc()).first()
+    user_id = request.session.get("user_id")
+
+    savings = db.query(Savings).filter(
+        Savings.user_id == user_id
+    ).order_by(Savings.id.desc()).first()
 
     db.close()
 
@@ -249,16 +290,20 @@ def savings_page(request: Request):
     )
 @app.post("/savings")
 def save_savings(
+    request: Request,
     goal: str = Form(...),
     target_amount: float = Form(...),
     saved_amount: float = Form(...)
 ):
     db = SessionLocal()
 
+    user_id = request.session.get("user_id")
+
     new_savings = Savings(
         goal=goal,
         target_amount=target_amount,
-        saved_amount=saved_amount
+        saved_amount=saved_amount,
+        user_id=user_id
     )
 
     db.add(new_savings)
@@ -267,12 +312,10 @@ def save_savings(
 
     db.close()
 
-    return {
-        "message": "Savings goal saved successfully",
-        "goal": new_savings.goal,
-        "target_amount": new_savings.target_amount,
-        "saved_amount": new_savings.saved_amount
-    }
+    return RedirectResponse(
+    url="/savings",
+    status_code=303
+)
 @app.get("/split-expense", response_class=HTMLResponse)
 def split_expense_page(request: Request):
 
@@ -312,7 +355,11 @@ def split_expense(
 def analysis_page(request: Request):
     db = SessionLocal()
 
-    expenses = db.query(Expense).all()
+    user_id = request.session.get("user_id")
+
+    expenses = db.query(Expense).filter(
+    Expense.user_id == user_id
+).all()
 
     category_totals = {}
     classifications = []

@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Savings - PocketSense AI</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', path='/css/style.css') }}">
+
 </head>
 
 <body>
 
     <h1>Savings Goal</h1>
 
-    <form method="post" action="/savings">
+    <form method="post" action="/savings" autocomplete="off">
 
         <label>Savings Goal</label>
+
         <input
             type="text"
             name="goal"
@@ -23,6 +30,7 @@
         >
 
         <label>Target Amount</label>
+
         <input
             type="number"
             name="target_amount"
@@ -32,6 +40,7 @@
         >
 
         <label>Already Saved Amount</label>
+
         <input
             type="number"
             name="saved_amount"
@@ -40,30 +49,12 @@
             required
         >
 
-        <button type="submit">Save Goal</button>
+        <button type="submit">
+            Save Goal
+        </button>
 
     </form>
 
-    <h2>Current Savings Goal</h2>
-
-    {% if savings %}
-
-        <p>Goal: {{ savings.goal }}</p>
-
-        <p>Target Amount: ₹{{ savings.target_amount }}</p>
-
-        <p>Saved Amount: ₹{{ savings.saved_amount }}</p>
-
-        <p>
-            Remaining Amount:
-            ₹{{ savings.target_amount - savings.saved_amount }}
-        </p>
-
-    {% else %}
-
-        <p>No savings goal set yet.</p>
-
-    {% endif %}
-
 </body>
+
 </html>

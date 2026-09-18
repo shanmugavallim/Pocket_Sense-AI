@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, String
+from sqlalchemy import Column, Integer, Float, String, ForeignKey
 from database.database import Base
 
 
@@ -9,3 +9,4 @@ class Savings(Base):
     goal = Column(String, nullable=False)
     target_amount = Column(Float, nullable=False)
     saved_amount = Column(Float, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)

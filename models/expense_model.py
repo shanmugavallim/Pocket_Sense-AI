@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from database.database import Base
 
 
@@ -10,3 +10,4 @@ class Expense(Base):
     amount = Column(Float, nullable=False)
     category = Column(String, nullable=False)
     date = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)

@@ -14,9 +14,10 @@
 
     <h1>Monthly Budget</h1>
 
-    <form method="post" action="/budget">
+    <form method="post" action="/budget" autocomplete="off">
 
         <label>Month</label>
+
         <input
             type="text"
             name="month"
@@ -25,6 +26,7 @@
         >
 
         <label>Budget Amount</label>
+
         <input
             type="number"
             name="amount"
@@ -33,22 +35,12 @@
             required
         >
 
-        <button type="submit">Save Budget</button>
+        <button type="submit">
+            Save Budget
+        </button>
 
     </form>
-    <h2>Current Budget</h2>
 
-{% if budget %}
-    <p>Month: {{ budget.month }}</p>
-    <p>Budget Amount: ₹{{ budget.amount }}</p>
-
-    <p>Total Spent: ₹{{ total_spent }}</p>
-
-    <p>Remaining: ₹{{ budget.amount - total_spent }}</p>
-
-{% else %}
-    <p>No budget set yet.</p>
-{% endif %}
 </body>
 
 </html>

@@ -2,12 +2,16 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Analysis - PocketSense AI</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', path='/css/style.css') }}">
+
 </head>
 
 <body>
@@ -19,6 +23,8 @@
     </p>
 
 
+    <!-- Expense Category Analysis -->
+
     <h2>Expense Category Analysis</h2>
 
     {% if category_totals %}
@@ -26,17 +32,22 @@
         {% for category, total in category_totals.items() %}
 
             <p>
-                {{ category }}: ₹{{ total }}
+                {{ category }}:
+                ₹{{ total }}
             </p>
 
         {% endfor %}
 
     {% else %}
 
-        <p>No expenses available for analysis.</p>
+        <p>
+            No expenses available for analysis.
+        </p>
 
     {% endif %}
 
+
+    <!-- AI Recommendations -->
 
     <h2>AI Recommendations</h2>
 
@@ -44,16 +55,22 @@
 
         {% for recommendation in recommendations %}
 
-            <p>{{ recommendation }}</p>
+            <p>
+                {{ recommendation }}
+            </p>
 
         {% endfor %}
 
     {% else %}
 
-        <p>No recommendations available.</p>
+        <p>
+            No recommendations available.
+        </p>
 
     {% endif %}
 
+
+    <!-- Unusual Spending Detection -->
 
     <h2>Unusual Spending Detection</h2>
 
@@ -61,16 +78,22 @@
 
         {% for item in unusual_spending %}
 
-            <p>{{ item }}</p>
+            <p>
+                {{ item }}
+            </p>
 
         {% endfor %}
 
     {% else %}
 
-        <p>No unusual spending detected.</p>
+        <p>
+            No unusual spending detected.
+        </p>
 
     {% endif %}
 
+
+    <!-- Next Month Expense Prediction -->
 
     <h2>Next Month Expense Prediction</h2>
 
@@ -80,6 +103,8 @@
     </p>
 
 
+    <!-- Spending Classification -->
+
     <h2>Spending Classification</h2>
 
     {% if classifications %}
@@ -87,9 +112,12 @@
         {% for item in classifications %}
 
             <p>
-                {{ item.title }} |
-                {{ item.category }} |
-                ₹{{ item.amount }} |
+                {{ item.title }}
+                |
+                {{ item.category }}
+                |
+                ₹{{ item.amount }}
+                |
                 {{ item.classification }}
             </p>
 
@@ -97,16 +125,22 @@
 
     {% else %}
 
-        <p>No spending classification available.</p>
+        <p>
+            No spending classification available.
+        </p>
 
     {% endif %}
 
 
     <br>
 
+
+    <!-- Back to Dashboard -->
+
     <a href="/dashboard">
-        <button>Back to Dashboard</button>
+        Back to Dashboard
     </a>
+
 
 </body>
 
