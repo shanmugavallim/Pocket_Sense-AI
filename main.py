@@ -16,6 +16,7 @@ import json
 from ai.chatbot import get_chatbot_response
 from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
+from ai.savings_advisor import get_savings_suggestion
 
 load_dotenv()
 
@@ -36,6 +37,13 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
+
+    if request.session.get("user_id"):
+        return RedirectResponse(
+            url="/dashboard",
+            status_code=303
+        )
+
     return templates.TemplateResponse(
         request=request,
         name="index.html",
@@ -108,8 +116,17 @@ def login_user(
         url="/dashboard",
         status_code=303
     )
+@app.get("/logout")
+def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/login", status_code=303)
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request):
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
     db = SessionLocal()
 
     user_id = request.session.get("user_id")
@@ -143,6 +160,7 @@ def dashboard(request: Request):
     savings = db.query(Savings).filter(
     Savings.user_id == user_id).order_by(Savings.id.desc()).first()
 
+    predicted_expense = predict_next_month_expense(8)
     db.close()
 
     return templates.TemplateResponse(
@@ -155,11 +173,17 @@ def dashboard(request: Request):
             "savings": savings,
             "category_totals": category_totals,
             "categories_json": categories_json,
-            "amounts_json": amounts_json
+            "amounts_json": amounts_json,
+            "predicted_expense": predicted_expense
         }
     )
 @app.get("/add-expense", response_class=HTMLResponse)
 def add_expense_page(request: Request):
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
     return templates.TemplateResponse(
         request=request,
         name="add_expense.html",
@@ -173,6 +197,11 @@ def add_expense(
     category: str = Form(...),
     date: str = Form(...)
 ):
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
     db = SessionLocal()
 
     user_id = request.session.get("user_id")
@@ -196,6 +225,11 @@ def add_expense(
 )
 @app.get("/expenses", response_class=HTMLResponse)
 def view_expenses(request: Request):
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
     db = SessionLocal()
 
     user_id = request.session.get("user_id")
@@ -216,6 +250,11 @@ def view_expenses(request: Request):
     )
 @app.get("/budget", response_class=HTMLResponse)
 def budget_page(request: Request):
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
     db = SessionLocal()
 
     user_id = request.session.get("user_id")
@@ -248,6 +287,11 @@ def save_budget(
     month: str = Form(...),
     amount: float = Form(...)
 ):
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
     db = SessionLocal()
 
     user_id = request.session.get("user_id")
@@ -270,6 +314,11 @@ def save_budget(
 )
 @app.get("/savings", response_class=HTMLResponse)
 def savings_page(request: Request):
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
     db = SessionLocal()
 
     user_id = request.session.get("user_id")
@@ -295,6 +344,11 @@ def save_savings(
     target_amount: float = Form(...),
     saved_amount: float = Form(...)
 ):
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
     db = SessionLocal()
 
     user_id = request.session.get("user_id")
@@ -318,6 +372,11 @@ def save_savings(
 )
 @app.get("/split-expense", response_class=HTMLResponse)
 def split_expense_page(request: Request):
+    if not request.session.get("user_id"):
+     return RedirectResponse(
+        url="/login",
+        status_code=303
+    )
 
     return templates.TemplateResponse(
         request=request,
@@ -332,7 +391,12 @@ def split_expense(
     expense_name: str = Form(...),
     amount: float = Form(...),
     people: int = Form(...)
-):
+):  
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
 
     each_person = amount / people
 
@@ -353,13 +417,35 @@ def split_expense(
     )
 @app.get("/analysis", response_class=HTMLResponse)
 def analysis_page(request: Request):
+
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
+
     db = SessionLocal()
 
     user_id = request.session.get("user_id")
 
+    # Total spending
+    total_expense = db.query(Expense).filter(
+        Expense.user_id == user_id
+    ).with_entities(Expense.amount).all()
+
+    total_spent = sum(
+        expense[0] for expense in total_expense
+    )
+
+    # Get latest budget
+    budget = db.query(Budget).filter(
+        Budget.user_id == user_id
+    ).order_by(Budget.id.desc()).first()
+
+    # Get user expenses
     expenses = db.query(Expense).filter(
-    Expense.user_id == user_id
-).all()
+        Expense.user_id == user_id
+    ).all()
 
     category_totals = {}
     classifications = []
@@ -383,11 +469,26 @@ def analysis_page(request: Request):
             "classification": classification
         })
 
+    # AI recommendations
     recommendations = analyze_spending(category_totals)
 
-    unusual_spending = detect_unusual_spending(category_totals)
+    # ML anomaly detection
+    unusual_spending = detect_unusual_spending(expenses)
 
-    predicted_expense = predict_next_month_expense(category_totals)
+    # ML expense prediction
+    predicted_expense = predict_next_month_expense(8)
+
+    # Savings suggestion
+    if budget:
+        savings_suggestion = get_savings_suggestion(
+            total_spent,
+            budget.amount
+        )
+    else:
+        savings_suggestion = get_savings_suggestion(
+            total_spent,
+            0
+        )
 
     db.close()
 
@@ -400,11 +501,17 @@ def analysis_page(request: Request):
             "recommendations": recommendations,
             "unusual_spending": unusual_spending,
             "predicted_expense": predicted_expense,
-            "classifications": classifications
+            "classifications": classifications,
+            "savings_suggestion": savings_suggestion
         }
     )
 @app.get("/chatbot", response_class=HTMLResponse)
 def chatbot_page(request: Request):
+    if not request.session.get("user_id"):
+        return RedirectResponse(
+            url="/login",
+            status_code=303
+        )
 
     return templates.TemplateResponse(
         request=request,

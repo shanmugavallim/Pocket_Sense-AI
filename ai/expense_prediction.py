@@ -1,7 +1,19 @@
-def predict_next_month_expense(category_totals):
+import os
+import joblib
 
-    total_spending = sum(category_totals.values())
+MODEL_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    "ml_models",
+    "expense_prediction_model.pkl"
+)
 
-    predicted_expense = total_spending
 
-    return predicted_expense
+def predict_next_month_expense(month_index):
+
+    model = joblib.load(MODEL_PATH)
+
+    next_month = month_index + 1
+
+    prediction = model.predict([[next_month]])
+
+    return round(float(prediction[0]), 2)

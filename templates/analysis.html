@@ -2,16 +2,13 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Analysis - PocketSense AI</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', path='/css/style.css') }}">
-
 </head>
 
 <body>
@@ -22,8 +19,6 @@
         Analyze your spending habits and understand where your money goes.
     </p>
 
-
-    <!-- Expense Category Analysis -->
 
     <h2>Expense Category Analysis</h2>
 
@@ -40,14 +35,10 @@
 
     {% else %}
 
-        <p>
-            No expenses available for analysis.
-        </p>
+        <p>No expenses available for analysis.</p>
 
     {% endif %}
 
-
-    <!-- AI Recommendations -->
 
     <h2>AI Recommendations</h2>
 
@@ -55,22 +46,16 @@
 
         {% for recommendation in recommendations %}
 
-            <p>
-                {{ recommendation }}
-            </p>
+            <p>{{ recommendation }}</p>
 
         {% endfor %}
 
     {% else %}
 
-        <p>
-            No recommendations available.
-        </p>
+        <p>No recommendations available.</p>
 
     {% endif %}
 
-
-    <!-- Unusual Spending Detection -->
 
     <h2>Unusual Spending Detection</h2>
 
@@ -78,22 +63,16 @@
 
         {% for item in unusual_spending %}
 
-            <p>
-                {{ item }}
-            </p>
+            <p>{{ item }}</p>
 
         {% endfor %}
 
     {% else %}
 
-        <p>
-            No unusual spending detected.
-        </p>
+        <p>No unusual spending detected.</p>
 
     {% endif %}
 
-
-    <!-- Next Month Expense Prediction -->
 
     <h2>Next Month Expense Prediction</h2>
 
@@ -102,8 +81,6 @@
         ₹{{ predicted_expense }}
     </p>
 
-
-    <!-- Spending Classification -->
 
     <h2>Spending Classification</h2>
 
@@ -125,22 +102,21 @@
 
     {% else %}
 
-        <p>
-            No spending classification available.
-        </p>
+        <p>No spending classification available.</p>
 
     {% endif %}
 
 
+    <h2>Personalized Savings Suggestion</h2>
+
+    <p>
+        {{ savings_suggestion }}
+    </p>
+
+
     <br>
 
-
-    <!-- Back to Dashboard -->
-
-    <a href="/dashboard">
-        Back to Dashboard
-    </a>
-
+    <a href="/dashboard">Back to Dashboard</a>
 
 </body>
 
